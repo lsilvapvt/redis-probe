@@ -35,7 +35,7 @@ steps:
 - task: Docker@2
   inputs:
     containerRegistry: 'DockerHubSilval'
-    repository: 'redis-probe'
+    repository: 'silval/redis-probe'
     command: 'buildAndPush'
     tags: |
       latest
