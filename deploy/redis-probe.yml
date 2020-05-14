@@ -1,0 +1,56 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: redis-probe
+  name: redis-probe
+  namespace: dev
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: redis-probe
+  template:
+    metadata:
+      labels:
+        app: redis-probe
+    spec:
+      containers:
+      - image: lsilva.azurecr.io/redis-probe:dev
+        name: redis-probe-pod
+        imagePullPolicy: Always
+        command:
+          - /usr/bin/redis-probe
+        env:
+          - name: REDIS_SERVER_ADDRESS
+            value: "10.195.72.178"
+          - name: REDIS_SERVER_PORT
+            value: "6379"          
+          - name: REDIS_PASSWORD
+            valueFrom:
+              secretKeyRef:
+                name: redis-server
+                key: password
+          - name: REDIS_DATABASE
+            value: "0"  
+          - name: REDIS_PROBE_SERVICE_PORT
+            value: "80"
+      imagePullSecrets:
+      - name: azurecr
+---            
+apiVersion: v1
+kind: Service
+metadata:
+  creationTimestamp: null
+  labels:
+    app: redis-probe
+  name: redis-probe
+  namespace: dev
+spec:
+  ports:
+  - port: 80
+    protocol: TCP
+    targetPort: 80
+  selector:
+    app: redis-probe
+  type: LoadBalancer
