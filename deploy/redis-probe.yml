@@ -16,7 +16,7 @@ spec:
         app: redis-probe
     spec:
       containers:
-      - image: lsilva.azurecr.io/redis-probe:dev
+      - image: silval/redis-probe:latest
         name: redis-probe-pod
         imagePullPolicy: Always
         command:
@@ -35,8 +35,6 @@ spec:
             value: "0"  
           - name: REDIS_PROBE_SERVICE_PORT
             value: "80"
-      imagePullSecrets:
-      - name: azurecr
 ---            
 apiVersion: v1
 kind: Service

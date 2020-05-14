@@ -28,6 +28,50 @@ $> curl http://10.10.120.12:8888/ping
 PONG
 
 ```
-## Run as a container in Kubernetes
 
+---
 
+## Run redis-probe as a container
+
+A sample container image containing the latest version of the `redis-probe` application is available from project `silval/redis-probe` in [Docker Hub](https://hub.docker.com/repository/docker/silval/redis-probe). The image is created with the (Dockerfile)[./docker/Dockerfile] available in this repository.
+
+A (sample deployment file)[./deploy/redis-probe.yml] is provided to deploy `redis-probe` to a Kubernetes cluster. 
+
+The sample deployment file deploys the container to a `dev` namespace, so make sure to create it or update that entry accordingly for your environment.
+
+To create the dev namespace:
+```
+   kubectl create namespace dev 
+```
+
+Create a secret for the redis password in the same namespace:
+```
+   kubectl create secret generic redis-server --from-literal=password=REDIS_PASSWORD_GOES_HERE -n dev
+```
+
+Update the value of the environment variables in (`redis-probe.yml`)[./deploy/redis-probe.yml] to configure the `redis-probe` to connect to yor Redis server. e.g. `REDIS_SERVER_ADDRESS`
+
+Then deploy the application to your kubernetes cluster:
+```
+   kubectl apply -f deploy/redis-probe.yml
+```
+
+Get the IP address allocated to the `redis-probe` service:
+```
+   kubectl get service redis-probe -n dev
+```
+
+Access the `redis-probe` endpoints to test the connectivity to the Redis server:
+```
+   curl http://IP-ADDRESS-FROM-PREVIOUS-STEP
+
+   curl http://IP-ADDRESS-FROM-PREVIOUS-STEP/ping
+
+   curl http://IP-ADDRESS-FROM-PREVIOUS-STEP/set
+
+   curl http://IP-ADDRESS-FROM-PREVIOUS-STEP/get
+
+   curl http://IP-ADDRESS-FROM-PREVIOUS-STEP/delete
+```
+
+---

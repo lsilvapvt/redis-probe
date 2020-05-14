@@ -100,11 +100,6 @@ func initRedisServerConnection() {
 	redisPassword := getEnv("REDIS_PASSWORD", "password")
 	redisDatabase, _ := strconv.Atoi(getEnv("REDIS_DATABASE", "0"))
 
-	// fmt.Println("REDIS_SERVER_ADDRESS:", redisServerAddress)
-	// fmt.Println("REDIS_SERVER_PORT:", redisServerPort)
-	// fmt.Println("REDIS_PASSWORD:", redisPassword)
-	// fmt.Println("REDIS_DATABASE:", redisDatabase)
-
 	redisClient = redis.NewClient(&redis.Options{
 		Addr:     redisServerAddress + ":" + redisServerPort,
 		Password: redisPassword,
