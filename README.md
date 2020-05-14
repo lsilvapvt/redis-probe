@@ -1,7 +1,7 @@
 # redis-probe
-A simple Golang application that exposes a REST API to test the connectivity with a Redis server.
+A simple Redis client application that tests the connectivity with a Redis server through a few REST API endpoints.
 
-The application runs as an http server that listens to requrests from a configurable port and initiates a Redis client to connect to a configurable Redis server.
+This Golang-based application runs as an http server that listens to requests from a configurable port and initiates a Redis client to connect to a configurable Redis server.
 
 Four endpoints are provided:
 - /ping - sends a PING to Redis server
@@ -33,9 +33,9 @@ PONG
 
 ## Run redis-probe as a container
 
-A sample container image containing the latest version of the `redis-probe` application is available from project `silval/redis-probe` in [Docker Hub](https://hub.docker.com/repository/docker/silval/redis-probe). The image is created with the (Dockerfile)[./docker/Dockerfile] available in this repository.
+A sample container image containing the latest version of the `redis-probe` application is available from project `silval/redis-probe` in [Docker Hub](https://hub.docker.com/repository/docker/silval/redis-probe). The image is created with the [Dockerfile](./docker/Dockerfile) available in this repository.
 
-A (sample deployment file)[./deploy/redis-probe.yml] is provided to deploy `redis-probe` to a Kubernetes cluster. 
+A [sample deployment file](./deploy/redis-probe.yml) is provided to deploy `redis-probe` to a Kubernetes cluster. 
 
 The sample deployment file deploys the container to a `dev` namespace, so make sure to create it or update that entry accordingly for your environment.
 
@@ -49,7 +49,7 @@ Create a secret for the redis password in the same namespace:
    kubectl create secret generic redis-server --from-literal=password=REDIS_PASSWORD_GOES_HERE -n dev
 ```
 
-Update the value of the environment variables in (`redis-probe.yml`)[./deploy/redis-probe.yml] to configure the `redis-probe` to connect to yor Redis server. e.g. `REDIS_SERVER_ADDRESS`
+Update the value of the environment variables in [`redis-probe.yml`](./deploy/redis-probe.yml) to configure the `redis-probe` to connect to yor Redis server. e.g. `REDIS_SERVER_ADDRESS`
 
 Then deploy the application to your kubernetes cluster:
 ```
