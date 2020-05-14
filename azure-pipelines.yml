@@ -26,4 +26,19 @@ steps:
     ArtifactName: 'drop'
     publishLocation: 'Container'
     
-        
+- task: Docker@2
+  displayName: Login to DockerHub
+  inputs:
+    command: login
+    containerRegistry: DockerHubSilval
+
+- task: Docker@2
+  inputs:
+    containerRegistry: 'DockerHubSilval'
+    repository: 'redis-probe'
+    command: 'buildAndPush'
+    tags: |
+      latest
+      $(Build.BuildId)
+    Dockerfile: '$(System.DefaultWorkingDirectory)/docker/Dockerfile'
+    buildContext: '$(Build.ArtifactStagingDirectory)'        
