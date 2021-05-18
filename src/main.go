@@ -7,11 +7,13 @@ import (
 	"os"
 	"strconv"
 	"time"
+	"context"
 
 	"github.com/go-redis/redis/v8"
 )
 
 var redisClient *redis.Client
+var ctx = context.Background()
 
 func homepage(w http.ResponseWriter, r *http.Request) {
 
@@ -29,7 +31,7 @@ func homepage(w http.ResponseWriter, r *http.Request) {
 
 func pingRedisServer(w http.ResponseWriter, r *http.Request) {
 
-	pong, err := redisClient.Ping().Result()
+	pong, err := redisClient.Ping(ctx).Result()
 
 	if err != nil {
 		fmt.Fprintln(w, err)
@@ -42,7 +44,7 @@ func pingRedisServer(w http.ResponseWriter, r *http.Request) {
 func setMyTimeVariable(w http.ResponseWriter, r *http.Request) {
 
 	mytime := time.Now().Format("2006-01-02 15:04:05")
-	err := redisClient.Set("MYTIME", mytime, 0).Err()
+	err := redisClient.Set(ctx, "MYTIME", mytime, 0).Err()
 
 	if err != nil {
 		fmt.Fprintln(w, err)
@@ -54,7 +56,7 @@ func setMyTimeVariable(w http.ResponseWriter, r *http.Request) {
 
 func getMyTimeVariable(w http.ResponseWriter, r *http.Request) {
 
-	val, err := redisClient.Get("MYTIME").Result()
+	val, err := redisClient.Get(ctx,"MYTIME").Result()
 
 	if err != nil {
 		fmt.Fprint(w, "Variable not found or error while retrieving it: ")
@@ -66,7 +68,7 @@ func getMyTimeVariable(w http.ResponseWriter, r *http.Request) {
 
 func deleteMyTimeVariable(w http.ResponseWriter, r *http.Request) {
 
-	result, err := redisClient.Del("MYTIME").Result()
+	result, err := redisClient.Del(ctx,"MYTIME").Result()
 
 	if err != nil {
 		fmt.Fprintln(w, err)
