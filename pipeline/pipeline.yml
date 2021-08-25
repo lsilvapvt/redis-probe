@@ -26,7 +26,7 @@ pipelines:
             versions:
               - "1.14.4"      
     steps:
-      - name: build_go
+      - name: redis_probe
         type: GoBuild
         configuration:
           sourceLocation: ./src
@@ -42,7 +42,7 @@ pipelines:
         type: GoPublishBinary
         configuration:
           inputSteps:
-            - name: build_go
+            - name: redis_probe
           targetRepository: go-local
           integrations:
             - name: acme_co_artifactory
