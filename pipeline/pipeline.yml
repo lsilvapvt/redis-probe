@@ -17,6 +17,14 @@ resources:
 
 pipelines:
   - name: go_redis_probe_build
+    configuration:
+      runtime:
+        type: image
+        image:
+          auto:
+            language: go
+            versions:
+              - "1.14.4"      
     steps:
       - name: build_go
         type: GoBuild
