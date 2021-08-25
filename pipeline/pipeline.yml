@@ -1,0 +1,49 @@
+resources:
+  # Sample Go app in a GitRepo
+  - name: go_repo
+    type: GitRepo
+    configuration:
+      path: lsilvapvt/redis-probe
+      branches:
+        include: master
+      gitProvider: acme_co_github
+
+  # Build info for the published Go app
+  - name: go_buildinfo
+    type: BuildInfo
+    configuration:
+      sourceArtifactory: acme_co_artifactory
+
+
+pipelines:
+  - name: go_redis_probe_build
+    steps:
+      - name: build_go
+        type: GoBuild
+        configuration:
+          sourceLocation: ./src
+          resolverRepo: go-virtual
+          noRegistry: true
+          inputResources:
+            - name: go_repo
+          integrations:
+            - name: acme_co_artifactory
+
+      # Publish the Go sample app binary to Artifactory. Docs at https://www.jfrog.com/confluence/display/JFROG/GoPublishBinary
+      - name: publish_go_binary
+        type: GoPublishBinary
+        configuration:
+          inputSteps:
+            - name: build_go
+          targetRepository: go-local
+          integrations:
+            - name: acme_co_artifactory
+
+      # Publish the Go sample app build info. Docs at https://www.jfrog.com/confluence/display/JFROG/PublishBuildInfo
+      - name: publish_build
+        type: PublishBuildInfo
+        configuration:
+          inputSteps:
+            - name: publish_go_binary
+          outputResources:
+            - name: go_buildinfo
