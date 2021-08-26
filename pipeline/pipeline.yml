@@ -13,6 +13,11 @@ resources:
     type: BuildInfo
     configuration:
       sourceArtifactory: acme_co_artifactory
+  # Build info for the promoted Go app
+  - name: go_promoted_buildinfo
+    type: BuildInfo
+    configuration:
+      sourceArtifactory: acme_co_artifactory
 
 
 pipelines:
@@ -58,4 +63,46 @@ pipelines:
         execution:
           onStart:
             - write_output go_buildinfo tested=false
+
+  - name: go_redis_probe_test_promote
+    steps:
+      - name: functional_test
+        type: Bash
+        configuration:
+          integrations:
+            - name: acme_co_artifactory
+          inputResources:
+            - name: go_buildinfo
+        execution:
+          onStart:
+            - echo "Your pre-test scripts are invoked here"
+            #- jfrog rt dl prod-go-local/app
+            #- ls -latr
+          onExecute:
+            - echo "Build name= ${res_go_buildinfo_buildName}"
+            - echo "Build number= ${res_go_buildinfo_buildNumber}"
+            - echo "Your test scripts are invoked here."
+
+      - name: security_scan
+        type: XrayScan
+        configuration:
+          inputResources:
+            - name: go_buildinfo 
+          inputSteps:
+            - name: functional_test            
+
+      - name: promote_build
+        type: PromoteBuild
+        configuration:
+          targetRepository: go-prod-local
+          includeDependencies: true
+          copy: true
+          integrations:
+            - name: artifactory_integration
+          inputResources:
+            - name: go_buildinfo
+          outputResources:
+            - name: go_promoted_buildinfo
+          inputSteps:
+            - name: security_scan   
 
