@@ -100,7 +100,7 @@ pipelines:
             - lsb_release -a
             - echo "Your test 1 scripts are invoked here."
             - ls -latr
-            - ./redis-probe-linux
+            - ./redis-probe-linux /help
 
       - name: func_test_CentOS
         type: Bash
@@ -142,7 +142,7 @@ pipelines:
           inputResources:
             - name: go_buildinfo
           inputSteps:
-            - name: promote_stage 
+            - name: security_scan 
 
         stepletMultipliers:
           environmentVariables:                         # Sets of environment variables for steplets
@@ -178,7 +178,7 @@ pipelines:
           outputResources:
             - name: go_stage_buildinfo
           inputSteps:
-            - name: security_scan  
+            - name: parameters_tests  
 
 
 
