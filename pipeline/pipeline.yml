@@ -70,7 +70,7 @@ pipelines:
 
   - name: go_redis_probe_test_promote
     steps:
-      - name: func_test_1
+      - name: func_test_Ubuntu
         type: Bash
         configuration:
           integrations:
@@ -85,11 +85,13 @@ pipelines:
           onExecute:
             - echo "Build name= ${res_go_buildinfo_buildName}"
             - echo "Build number= ${res_go_buildinfo_buildNumber}"
+            - lsb_release -a
             - echo "Your test 1 scripts are invoked here."
 
-      - name: func_test_2
+      - name: func_test_CentOS
         type: Bash
         configuration:
+          nodePool: centos8
           integrations:
             - name: acme_co_artifactory
           inputResources:
@@ -98,6 +100,7 @@ pipelines:
           onExecute:
             - echo "Build name= ${res_go_buildinfo_buildName}"
             - echo "Build number= ${res_go_buildinfo_buildNumber}"
+            - cat /etc/centos-release 
             - echo "Your test 2 scripts are invoked here."
 
       - name: security_scan
@@ -106,8 +109,8 @@ pipelines:
           inputResources:
             - name: go_buildinfo 
           inputSteps:
-            - name: func_test_1
-            - name: func_test_2
+            - name: func_test_Ubuntu
+            - name: func_test_CentOS
 
       - name: promote_stage
         type: PromoteBuild
@@ -138,7 +141,31 @@ pipelines:
             - echo "Build name= ${res_go_stage_buildinfo_buildName}"
             - echo "Build number= ${res_go_stage_buildinfo_buildNumber}"
             - echo "Your test 2 scripts are invoked here."
-            
+
+      - name: integration_tests
+        type: Matrix
+        stepMode: Bash
+        configuration:
+          integrations:
+            - name: acme_co_artifactory
+          inputResources:
+            - name: go_stage_buildinfo
+          inputSteps:
+            - name: promote_stage 
+
+        stepletMultipliers:
+          environmentVariables:                         # Sets of environment variables for steplets
+            - subCommand:      ping                     # - Set 1
+              REDIS_SERVER_ADDRESS:   "server1.example.com"
+            - subCommand:      set                      # - Set 2
+              REDIS_SERVER_ADDRESS:   "server1.example.com"
+      
+        execution:
+          onExecute:
+            - echo "I am executing matrix steplet ${steplet_id}"
+            - echo "Envs subCommand= ${subCommand} , REDIS_SERVER_ADDRESS = ${REDIS_SERVER_ADDRESS} "
+            - echo "Runtime image name: $step_image_name | Runtime image tag: $step_image_tag"            
+
       - name: promote_prod
         type: PromoteBuild
         configuration:
