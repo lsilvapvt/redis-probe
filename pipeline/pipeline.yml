@@ -73,6 +73,7 @@ pipelines:
       - name: func_test_Ubuntu
         type: Bash
         configuration:
+          nodePool: default-dynamic-nodepool
           integrations:
             - name: acme_co_artifactory
           inputResources:
@@ -162,9 +163,9 @@ pipelines:
       
         execution:
           onExecute:
-            - echo "I am executing matrix steplet ${steplet_id}"
-            - echo "Envs subCommand= ${subCommand} , REDIS_SERVER_ADDRESS = ${REDIS_SERVER_ADDRESS} "
-            - echo "Runtime image name: $step_image_name | Runtime image tag: $step_image_tag"            
+          - echo "I am executing matrix steplet ${steplet_id}"
+          - echo "Environments subCommand [${subCommand}], REDIS_SERVER_ADDRESS [${REDIS_SERVER_ADDRESS}]"
+          - echo "Runtime image name $step_image_name , Runtime image name ${step_image_tag}"
 
       - name: promote_prod
         type: PromoteBuild
