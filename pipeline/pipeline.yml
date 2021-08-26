@@ -129,21 +129,6 @@ pipelines:
             - name: security_scan  
 
       - name: integration_tests
-        type: Bash
-        configuration:
-          integrations:
-            - name: acme_co_artifactory
-          inputResources:
-            - name: go_stage_buildinfo
-          inputSteps:
-            - name: promote_stage  
-        execution:
-          onExecute:
-            - echo "Build name= ${res_go_stage_buildinfo_buildName}"
-            - echo "Build number= ${res_go_stage_buildinfo_buildNumber}"
-            - echo "Your test 2 scripts are invoked here."
-
-      - name: integration_tests
         type: Matrix
         stepMode: Bash
         configuration:
@@ -166,6 +151,10 @@ pipelines:
           - echo "I am executing matrix steplet ${steplet_id}"
           - echo "Environments subCommand [${subCommand}], REDIS_SERVER_ADDRESS [${REDIS_SERVER_ADDRESS}]"
           - echo "Runtime image name $step_image_name , Runtime image name ${step_image_tag}"
+          - echo "Build name= ${res_go_stage_buildinfo_buildName}"
+          - echo "Build number= ${res_go_stage_buildinfo_buildNumber}"
+          - echo "Your integration test scripts are invoked here."
+
 
       - name: promote_prod
         type: PromoteBuild
