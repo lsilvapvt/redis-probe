@@ -29,6 +29,14 @@ resources:
     configuration:
       sourceArtifactory: acme_co_artifactory
 
+  - name: go_build_binary
+    type: FileSpec
+    configuration:
+      sourceArtifactory: acme_co_artifactory
+      pattern: "redis-probe-files/${run_number}/redis-probe-linux"
+      recursive: false
+      flat: true
+
 pipelines:
   - name: go_redis_probe_build
     configuration:
@@ -176,6 +184,7 @@ pipelines:
 
   - name: go_redis_probe_docker_build
     steps:
+
       - name: build_image
         type: DockerBuild
         configuration:
@@ -186,14 +195,9 @@ pipelines:
           inputResources:
             - name: go_stage_buildinfo
             - name: go_repo
+            - name: go_build_binary
           integrations:
             - name: acme_co_artifactory
-        execution:
-          onStart:
-            - echo "Your pre-test1 scripts are invoked here"
-            - jfrog rt dl go-stage-local/redis-probe-files/${res_go_buildinfo_buildNumber}/redis-probe-linux --flat
-            - chmod 755 ./redis-probe-linux
-            - ls -latr
 
       - name: publish_dockerbuild
         type: PublishBuildInfo
