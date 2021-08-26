@@ -169,5 +169,5 @@ pipelines:
           outputResources:
             - name: go_prod_buildinfo
           inputSteps:
-            - name: integration_tests   
+            - name: system_tests   
 
