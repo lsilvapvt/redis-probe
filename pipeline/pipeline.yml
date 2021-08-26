@@ -43,7 +43,7 @@ pipelines:
         configuration:
           inputSteps:
             - name: redis_probe
-          targetRepository: go-local/redis-probe-files
+          targetRepository: go-local/redis-probe-files/redis-probe
           integrations:
             - name: acme_co_artifactory
 
