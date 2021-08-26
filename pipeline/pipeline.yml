@@ -208,7 +208,7 @@ pipelines:
           autoPublishBuildInfo: true   
           forceXrayScan: false
           failOnScan: false
-          inputStep:
+          inputSteps:
             - name: build_image
           outputResources:
             - name: go_dockerbuildinfo
