@@ -36,9 +36,6 @@ pipelines:
             - name: go_repo
           integrations:
             - name: acme_co_artifactory
-        execution:
-          onComplete:
-           - write_output redis_probe cachefile.txt
 
       # Publish the Go sample app binary to Artifactory. Docs at https://www.jfrog.com/confluence/display/JFROG/GoPublishBinary
       - name: publish_go_binary
@@ -60,4 +57,5 @@ pipelines:
             - name: go_buildinfo
         execution:
           onStart:
-           - write_output go_buildinfo build_run=${run_number}
+            - write_output go_buildinfo tested=false
+
