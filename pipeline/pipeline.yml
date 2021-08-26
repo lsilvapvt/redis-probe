@@ -188,6 +188,7 @@ pipelines:
       - name: build_image
         type: DockerBuild
         configuration:
+          affinityGroup: docker_group
           dockerFileLocation: .
           dockerFileName: Dockerfile
           dockerImageName: soleng.jfrog.io/docker-stage-local/redis-probe        # replace with your fully qualified Docker registry/image name
@@ -200,9 +201,14 @@ pipelines:
             - name: acme_co_artifactory
 
       - name: publish_dockerbuild
-        type: PublishBuildInfo
+        type: DockerPush
         configuration:
-          inputSteps:
+          targetRepository: docker-stage-local
+          affinityGroup: docker_group
+          autoPublishBuildInfo: true   
+          forceXrayScan: false
+          failOnScan: false
+          inputStep:
             - name: build_image
           outputResources:
             - name: go_dockerbuildinfo
@@ -226,17 +232,17 @@ pipelines:
 
       ## TBD add gate step here
 
-      - name: promote_docker_prod
-        type: PromoteBuild
-        configuration:
-          targetRepository: go-prod-local
-          includeDependencies: true
-          copy: true
-          integrations:
-            - name: acme_co_artifactory
-          inputResources:
-            - name: go_stage_buildinfo
-          outputResources:
-            - name: go_prod_buildinfo
-          inputSteps:
-            - name: test_docker_image            
+      # - name: promote_docker_prod
+      #   type: PromoteBuild
+      #   configuration:
+      #     targetRepository: go-prod-local
+      #     includeDependencies: true
+      #     copy: true
+      #     integrations:
+      #       - name: acme_co_artifactory
+      #     inputResources:
+      #       - name: go_stage_buildinfo
+      #     outputResources:
+      #       - name: go_prod_buildinfo
+      #     inputSteps:
+      #       - name: test_docker_image            
