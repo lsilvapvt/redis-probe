@@ -90,7 +90,7 @@ pipelines:
             - lsb_release -a
             - echo "Your test 1 scripts are invoked here."
             - ls -latr
-            - ./redis-probe
+            - ./redis-probe-linux
 
       - name: func_test_CentOS
         type: Bash
@@ -112,7 +112,7 @@ pipelines:
             - cat /etc/centos-release 
             - echo "Your test 2 scripts are invoked here."
             - ls -latr
-            - ./redis-probe
+            - ./redis-probe-linux
 
       - name: security_scan
         type: XrayScan
