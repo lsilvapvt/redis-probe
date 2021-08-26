@@ -81,13 +81,14 @@ pipelines:
         execution:
           onStart:
             - echo "Your pre-test1 scripts are invoked here"
-            #- jfrog rt dl prod-go-local/app
-            #- ls -latr
+            - jfrog rt dl go-local/redis-probe-files/${res_go_buildinfo_buildNumber}/redis-probe-linux
+            - ls -latr
           onExecute:
             - echo "Build name= ${res_go_buildinfo_buildName}"
             - echo "Build number= ${res_go_buildinfo_buildNumber}"
             - lsb_release -a
             - echo "Your test 1 scripts are invoked here."
+            - ls -latr
 
       - name: func_test_CentOS
         type: Bash
