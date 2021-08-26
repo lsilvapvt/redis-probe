@@ -113,7 +113,7 @@ pipelines:
           onStart:
             - echo "Your pre-test1 scripts are invoked here"
             - jfrog rt dl go-local/redis-probe-files/${res_go_buildinfo_buildNumber}/redis-probe-linux --flat
-            - chmod 755 ./redis-probe-linux /help
+            - chmod 755 ./redis-probe-linux
             - ls -latr
           onExecute:
             - echo "Build name= ${res_go_buildinfo_buildName}"
