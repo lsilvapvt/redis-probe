@@ -13,12 +13,16 @@ resources:
     type: BuildInfo
     configuration:
       sourceArtifactory: acme_co_artifactory
-  # Build info for the promoted Go app
-  - name: go_promoted_buildinfo
+  # Build info for the staging promoted Go app
+  - name: go_stage_buildinfo
     type: BuildInfo
     configuration:
       sourceArtifactory: acme_co_artifactory
-
+  # Build info for the production promoted Go app
+  - name: go_prod_buildinfo
+    type: BuildInfo
+    configuration:
+      sourceArtifactory: acme_co_artifactory
 
 pipelines:
   - name: go_redis_probe_build
@@ -66,7 +70,7 @@ pipelines:
 
   - name: go_redis_probe_test_promote
     steps:
-      - name: functional_test
+      - name: func_test_1
         type: Bash
         configuration:
           integrations:
@@ -75,13 +79,26 @@ pipelines:
             - name: go_buildinfo
         execution:
           onStart:
-            - echo "Your pre-test scripts are invoked here"
+            - echo "Your pre-test1 scripts are invoked here"
             #- jfrog rt dl prod-go-local/app
             #- ls -latr
           onExecute:
             - echo "Build name= ${res_go_buildinfo_buildName}"
             - echo "Build number= ${res_go_buildinfo_buildNumber}"
-            - echo "Your test scripts are invoked here."
+            - echo "Your test 1 scripts are invoked here."
+
+      - name: func_test_2
+        type: Bash
+        configuration:
+          integrations:
+            - name: acme_co_artifactory
+          inputResources:
+            - name: go_buildinfo
+        execution:
+          onExecute:
+            - echo "Build name= ${res_go_buildinfo_buildName}"
+            - echo "Build number= ${res_go_buildinfo_buildNumber}"
+            - echo "Your test 2 scripts are invoked here."
 
       - name: security_scan
         type: XrayScan
@@ -89,9 +106,40 @@ pipelines:
           inputResources:
             - name: go_buildinfo 
           inputSteps:
-            - name: functional_test            
+            - name: func_test_1
+            - name: func_test_2
 
-      - name: promote_build
+      - name: promote_stage
+        type: PromoteBuild
+        configuration:
+          targetRepository: go-stage-local
+          includeDependencies: true
+          copy: true
+          integrations:
+            - name: acme_co_artifactory
+          inputResources:
+            - name: go_buildinfo
+          outputResources:
+            - name: go_stage_buildinfo
+          inputSteps:
+            - name: security_scan  
+
+      - name: integration_tests
+        type: Bash
+        configuration:
+          integrations:
+            - name: acme_co_artifactory
+          inputResources:
+            - name: go_stage_buildinfo
+          inputSteps:
+            - name: promote_stage  
+        execution:
+          onExecute:
+            - echo "Build name= ${res_go_stage_buildinfo_buildName}"
+            - echo "Build number= ${res_go_stage_buildinfo_buildNumber}"
+            - echo "Your test 2 scripts are invoked here."
+            
+      - name: promote_prod
         type: PromoteBuild
         configuration:
           targetRepository: go-prod-local
@@ -100,9 +148,9 @@ pipelines:
           integrations:
             - name: acme_co_artifactory
           inputResources:
-            - name: go_buildinfo
+            - name: go_stage_buildinfo
           outputResources:
-            - name: go_promoted_buildinfo
+            - name: go_prod_buildinfo
           inputSteps:
-            - name: security_scan   
+            - name: integration_tests   
 
