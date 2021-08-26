@@ -18,6 +18,11 @@ resources:
     type: BuildInfo
     configuration:
       sourceArtifactory: acme_co_artifactory
+  # Build info for the published Go app
+  - name: go_dockerbuildinfo
+    type: BuildInfo
+    configuration:
+      sourceArtifactory: acme_co_artifactory
   # Build info for the production promoted Go app
   - name: go_prod_buildinfo
     type: BuildInfo
@@ -64,9 +69,6 @@ pipelines:
             - name: publish_go_binary
           outputResources:
             - name: go_buildinfo
-        execution:
-          onStart:
-            - write_output go_buildinfo tested=false
 
   - name: go_redis_probe_test_promote
     steps:
@@ -104,7 +106,7 @@ pipelines:
           onStart:
             - echo "Your pre-test1 scripts are invoked here"
             - jfrog rt dl go-local/redis-probe-files/${res_go_buildinfo_buildNumber}/redis-probe-linux --flat
-            - chmod 755 ./redis-probe-linux
+            - chmod 755 ./redis-probe-linux /help
             - ls -latr
           onExecute:
             - echo "Build name= ${res_go_buildinfo_buildName}"
@@ -112,7 +114,7 @@ pipelines:
             - cat /etc/centos-release 
             - echo "Your test 2 scripts are invoked here."
             - ls -latr
-            - ./redis-probe-linux
+            - ./redis-probe-linux /help
 
       - name: security_scan
         type: XrayScan
@@ -122,6 +124,38 @@ pipelines:
           inputSteps:
             - name: func_test_Ubuntu
             - name: func_test_CentOS
+
+      - name: parameters_tests
+        type: Matrix
+        stepMode: Bash
+        configuration:
+          integrations:
+            - name: acme_co_artifactory
+          inputResources:
+            - name: go_buildinfo
+          inputSteps:
+            - name: promote_stage 
+
+        stepletMultipliers:
+          environmentVariables:                         # Sets of environment variables for steplets
+            - subCommand:      ping                     # - Set 1
+              # REDIS_SERVER_ADDRESS:   "server1.example.com"
+            - subCommand:      set                      # - Set 2
+              # REDIS_SERVER_ADDRESS:   "server1.example.com"
+      
+        execution:
+          onStart:
+            - echo "Your pre-test1 scripts are invoked here"
+            - jfrog rt dl go-local/redis-probe-files/${res_go_buildinfo_buildNumber}/redis-probe-linux --flat
+            - chmod 755 ./redis-probe-linux
+            - ls -latr
+          onExecute:
+          - echo "I am executing matrix steplet ${steplet_id}"
+          - echo "Environments subCommand [${subCommand}], REDIS_SERVER_ADDRESS [${REDIS_SERVER_ADDRESS}]"
+          - echo "Runtime image name $step_image_name , Runtime image name ${step_image_tag}"
+          - echo "Build name= ${res_go_stage_buildinfo_buildName}"
+          - echo "Build number= ${res_go_stage_buildinfo_buildNumber}"
+          - echo "Your integration test scripts are invoked here."
 
       - name: promote_stage
         type: PromoteBuild
@@ -138,35 +172,57 @@ pipelines:
           inputSteps:
             - name: security_scan  
 
-      - name: system_tests
-        type: Matrix
-        stepMode: Bash
+
+
+  - name: go_redis_probe_docker_build
+    steps:
+      - name: build_image
+        type: DockerBuild
+        configuration:
+          dockerFileLocation: .
+          dockerFileName: Dockerfile
+          dockerImageName: soleng.jfrog.io/docker-stage-local/redis-probe        # replace with your fully qualified Docker registry/image name
+          dockerImageTag: ${res_go_buildinfo_buildNumber}
+          inputResources:
+            - name: go_stage_buildinfo
+            - name: go_repo
+          integrations:
+            - name: acme_co_artifactory
+        execution:
+          onStart:
+            - echo "Your pre-test1 scripts are invoked here"
+            - jfrog rt dl go-stage-local/redis-probe-files/${res_go_buildinfo_buildNumber}/redis-probe-linux --flat
+            - chmod 755 ./redis-probe-linux
+            - ls -latr
+
+      - name: publish_dockerbuild
+        type: PublishBuildInfo
+        configuration:
+          inputSteps:
+            - name: build_image
+          outputResources:
+            - name: go_dockerbuildinfo
+
+      - name: test_docker_image
+        type: Bash
         configuration:
           integrations:
             - name: acme_co_artifactory
           inputResources:
-            - name: go_stage_buildinfo
+            - name: go_dockerbuildinfo
           inputSteps:
-            - name: promote_stage 
-
-        stepletMultipliers:
-          environmentVariables:                         # Sets of environment variables for steplets
-            - subCommand:      ping                     # - Set 1
-              REDIS_SERVER_ADDRESS:   "server1.example.com"
-            - subCommand:      set                      # - Set 2
-              REDIS_SERVER_ADDRESS:   "server1.example.com"
-      
+            - name: publish_dockerbuild
         execution:
+          onStart:
+            - echo "Your pre-test1 scripts are invoked here"
           onExecute:
-          - echo "I am executing matrix steplet ${steplet_id}"
-          - echo "Environments subCommand [${subCommand}], REDIS_SERVER_ADDRESS [${REDIS_SERVER_ADDRESS}]"
-          - echo "Runtime image name $step_image_name , Runtime image name ${step_image_tag}"
-          - echo "Build name= ${res_go_stage_buildinfo_buildName}"
-          - echo "Build number= ${res_go_stage_buildinfo_buildNumber}"
-          - echo "Your integration test scripts are invoked here."
+            - echo "Docker Build name= ${res_go_dockerbuildinfo_buildName}"
+            - echo "Docker Build number= ${res_go_dockerbuildinfo_buildNumber}"
+            - echo "Your docker image test scripts are invoked here."
 
+      ## TBD add gate step here
 
-      - name: promote_prod
+      - name: promote_docker_prod
         type: PromoteBuild
         configuration:
           targetRepository: go-prod-local
@@ -179,5 +235,4 @@ pipelines:
           outputResources:
             - name: go_prod_buildinfo
           inputSteps:
-            - name: system_tests   
-
+            - name: test_docker_image            
