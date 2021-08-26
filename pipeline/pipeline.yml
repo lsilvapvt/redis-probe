@@ -128,7 +128,7 @@ pipelines:
           inputSteps:
             - name: security_scan  
 
-      - name: integration_tests
+      - name: system_tests
         type: Matrix
         stepMode: Bash
         configuration:
