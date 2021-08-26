@@ -208,6 +208,8 @@ pipelines:
           autoPublishBuildInfo: true   
           forceXrayScan: false
           failOnScan: false
+          integrations:
+            - name: acme_co_artifactory
           inputSteps:
             - name: build_image
           outputResources:
