@@ -81,7 +81,8 @@ pipelines:
         execution:
           onStart:
             - echo "Your pre-test1 scripts are invoked here"
-            - jfrog rt dl go-local/redis-probe-files/${res_go_buildinfo_buildNumber}/redis-probe-linux
+            - jfrog rt dl go-local/redis-probe-files/${res_go_buildinfo_buildNumber}/redis-probe-linux --flat
+            - chmod 755 ./redis-probe-linux
             - ls -latr
           onExecute:
             - echo "Build name= ${res_go_buildinfo_buildName}"
@@ -89,6 +90,7 @@ pipelines:
             - lsb_release -a
             - echo "Your test 1 scripts are invoked here."
             - ls -latr
+            - ./redis-probe
 
       - name: func_test_CentOS
         type: Bash
@@ -99,11 +101,18 @@ pipelines:
           inputResources:
             - name: go_buildinfo
         execution:
+          onStart:
+            - echo "Your pre-test1 scripts are invoked here"
+            - jfrog rt dl go-local/redis-probe-files/${res_go_buildinfo_buildNumber}/redis-probe-linux --flat
+            - chmod 755 ./redis-probe-linux
+            - ls -latr
           onExecute:
             - echo "Build name= ${res_go_buildinfo_buildName}"
             - echo "Build number= ${res_go_buildinfo_buildNumber}"
             - cat /etc/centos-release 
             - echo "Your test 2 scripts are invoked here."
+            - ls -latr
+            - ./redis-probe
 
       - name: security_scan
         type: XrayScan
