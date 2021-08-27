@@ -33,7 +33,7 @@ resources:
     type: FileSpec
     configuration:
       sourceArtifactory: acme_co_artifactory
-      aql: "{'repo': 'redis-probe-files'}"
+      pattern: "redis-probe-files/*/redis-probe-linux"
       recursive: false
       flat: true
 
