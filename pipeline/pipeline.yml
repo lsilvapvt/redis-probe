@@ -110,8 +110,9 @@ pipelines:
             - echo "Build name= ${res_go_buildinfo_buildName}"
             - echo "Build number= ${res_go_buildinfo_buildNumber}"
             - lsb_release -a
-            - echo "Your test 1 scripts are invoked here."
             - ls -latr
+            - ./redis-probe-linux &
+            - curl localhost:8888 
 
       - name: func_test_CentOS
         type: Bash
@@ -131,8 +132,9 @@ pipelines:
             - echo "Build name= ${res_go_buildinfo_buildName}"
             - echo "Build number= ${res_go_buildinfo_buildNumber}"
             - cat /etc/centos-release 
-            - echo "Your test 2 scripts are invoked here."
             - ls -latr
+            - ./redis-probe-linux &
+            - curl localhost:8888 
 
       - name: security_scan
         type: XrayScan
