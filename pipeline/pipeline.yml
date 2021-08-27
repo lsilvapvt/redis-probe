@@ -205,7 +205,7 @@ pipelines:
         type: DockerBuild
         configuration:
           affinityGroup: docker_group
-          dockerFileLocation: .
+          dockerFileLocation: ./docker/
           dockerFileName: Dockerfile
           dockerImageName: soleng.jfrog.io/docker-stage-local/redis-probe        # replace with your fully qualified Docker registry/image name
           dockerImageTag: ${res_go_stage_buildinfo_buildNumber}
