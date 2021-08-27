@@ -43,9 +43,9 @@ resources:
   - name: redis_probe_image
     type: Image
     configuration:
-      registry: acme_co_artifactory                          
+      registry: acme_co_swampup113                          
       sourceRepository: docker-stage-local   
-      imageName: soleng.jfrog.io/docker-stage-local/redis-probe        # replace with your fully qualified Docker registry/image name
+      imageName: swampup113.jfrog.io/docker-stage-local/redis-probe        # replace with your fully qualified Docker registry/image name
       imageTag: ${res_go_stage_buildinfo_buildNumber}
       autoPull: true
 
@@ -217,7 +217,7 @@ pipelines:
           affinityGroup: docker_group
           dockerFileLocation: ./docker/
           dockerFileName: Dockerfile
-          dockerImageName: soleng.jfrog.io/docker-stage-local/redis-probe        # replace with your fully qualified Docker registry/image name
+          dockerImageName: swampup113.jfrog.io/docker-stage-local/redis-probe        # replace with your fully qualified Docker registry/image name
           dockerImageTag: ${res_go_stage_buildinfo_buildNumber}
           inputResources:
             - name: go_stage_buildinfo
@@ -241,7 +241,7 @@ pipelines:
           forceXrayScan: false
           failOnScan: false
           integrations:
-            - name: acme_co_artifactory
+            - name: acme_co_swampup113
           inputSteps:
             - name: build_image
           outputResources:
