@@ -37,7 +37,7 @@ resources:
       recursive: false
       flat: true
       buildName: go_redis_probe_build
-      buildNumber: ${run_number}
+      buildNumber: ${res_go_buildinfo_buildNumber}"
 
 pipelines:
   - name: go_redis_probe_build
@@ -184,6 +184,20 @@ pipelines:
 
   - name: go_redis_probe_docker_build
     steps:
+      - name: pre-checks
+        type: Bash
+        configuration:
+          integrations:
+            - name: acme_co_artifactory
+          inputResources:
+            - name: go_stage_buildinfo
+            - name: go_buildinfo
+        execution:
+          onExecute:
+            - echo "go_buildinfo name= ${res_go_buildinfo_buildName}"
+            - echo "go_buildinfo number= ${res_go_buildinfo_buildNumber}"
+            - echo "go_stage_buildinfo name= ${res_go_stage_buildinfo_buildName}"
+            - echo "go_stage_buildinfo number= ${res_go_stage_buildinfo_buildNumber}"
 
       - name: build_image
         type: DockerBuild
@@ -195,13 +209,16 @@ pipelines:
           dockerImageTag: ${res_go_buildinfo_buildNumber}
           inputResources:
             - name: go_stage_buildinfo
+            - name: go_buildinfo
             - name: go_repo
             - name: go_build_binary
+          inputSteps:
+            - name: pre-checks
           integrations:
             - name: acme_co_artifactory
-          environmentVariables:
-            JFROG_CLI_BUILD_NAME: ${res_go_buildinfo_buildName}
-            JFROG_CLI_BUILD_NUMBER: ${res_go_buildinfo_buildNumber}
+          # environmentVariables:
+          #   JFROG_CLI_BUILD_NAME: ${res_go_buildinfo_buildName}
+          #   JFROG_CLI_BUILD_NUMBER: ${res_go_buildinfo_buildNumber}
 
       - name: publish_dockerbuild
         type: DockerPush
