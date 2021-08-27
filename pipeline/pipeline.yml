@@ -37,7 +37,7 @@ resources:
       recursive: false
       flat: true
       buildName: go_redis_probe_build
-      buildNumber: ${res_go_stage_buildinfo_buildNumber}"
+      buildNumber: ${res_go_stage_buildinfo_buildNumber}
 
 pipelines:
   - name: go_redis_probe_build
@@ -208,7 +208,7 @@ pipelines:
           dockerFileLocation: .
           dockerFileName: Dockerfile
           dockerImageName: soleng.jfrog.io/docker-stage-local/redis-probe        # replace with your fully qualified Docker registry/image name
-          dockerImageTag: ${res_go_stage_buildinfo_buildNumber}"
+          dockerImageTag: ${res_go_stage_buildinfo_buildNumber}
           inputResources:
             - name: go_stage_buildinfo
             - name: go_buildinfo
