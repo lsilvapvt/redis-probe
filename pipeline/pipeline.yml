@@ -33,7 +33,7 @@ resources:
     type: FileSpec
     configuration:
       sourceArtifactory: acme_co_artifactory
-      pattern: "redis-probe-files/${run_number}/redis-probe-linux"
+      aql: "{'repo': 'redis-probe-files'}"
       recursive: false
       flat: true
 
@@ -197,6 +197,9 @@ pipelines:
             - name: go_build_binary
           integrations:
             - name: acme_co_artifactory
+          environmentVariables:
+            JFROG_CLI_BUILD_NAME: ${res_go_buildinfo_buildName}
+            JFROG_CLI_BUILD_NUMBER: ${res_go_buildinfo_buildNumber}
 
       - name: publish_dockerbuild
         type: DockerPush
