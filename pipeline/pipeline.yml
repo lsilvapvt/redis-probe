@@ -184,7 +184,7 @@ pipelines:
 
   - name: go_redis_probe_docker_build
     steps:
-      - name: pre-checks
+      - name: pre_checks
         type: Bash
         configuration:
           integrations:
@@ -213,7 +213,7 @@ pipelines:
             - name: go_repo
             - name: go_build_binary
           inputSteps:
-            - name: pre-checks
+            - name: pre_checks
           integrations:
             - name: acme_co_artifactory
           # environmentVariables:
