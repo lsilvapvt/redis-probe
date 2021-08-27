@@ -37,7 +37,7 @@ resources:
       recursive: false
       flat: true
       buildName: go_redis_probe_build
-      buildNumber: ${res_go_buildinfo_buildNumber}"
+      buildNumber: ${res_go_stage_buildinfo_buildNumber}"
 
 pipelines:
   - name: go_redis_probe_build
@@ -169,7 +169,7 @@ pipelines:
         type: PromoteBuild
         configuration:
           targetRepository: go-stage-local
-          includeDependencies: true
+          includeDependencies: false
           copy: true
           integrations:
             - name: acme_co_artifactory
@@ -192,12 +192,14 @@ pipelines:
           inputResources:
             - name: go_stage_buildinfo
             - name: go_buildinfo
+            - name: go_build_binary
         execution:
           onExecute:
             - echo "go_buildinfo name= ${res_go_buildinfo_buildName}"
             - echo "go_buildinfo number= ${res_go_buildinfo_buildNumber}"
             - echo "go_stage_buildinfo name= ${res_go_stage_buildinfo_buildName}"
             - echo "go_stage_buildinfo number= ${res_go_stage_buildinfo_buildNumber}"
+            - ls -la
 
       - name: build_image
         type: DockerBuild
@@ -206,7 +208,7 @@ pipelines:
           dockerFileLocation: .
           dockerFileName: Dockerfile
           dockerImageName: soleng.jfrog.io/docker-stage-local/redis-probe        # replace with your fully qualified Docker registry/image name
-          dockerImageTag: ${res_go_buildinfo_buildNumber}
+          dockerImageTag: ${res_go_stage_buildinfo_buildNumber}"
           inputResources:
             - name: go_stage_buildinfo
             - name: go_buildinfo
@@ -258,7 +260,7 @@ pipelines:
       #   type: PromoteBuild
       #   configuration:
       #     targetRepository: go-prod-local
-      #     includeDependencies: true
+      #     includeDependencies: false
       #     copy: true
       #     integrations:
       #       - name: acme_co_artifactory
