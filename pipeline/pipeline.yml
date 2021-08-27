@@ -33,9 +33,11 @@ resources:
     type: FileSpec
     configuration:
       sourceArtifactory: acme_co_artifactory
-      pattern: "redis-probe-files/*/redis-probe-linux"
+      pattern: "go-stage-local/redis-probe-files/*/redis-probe-linux"
       recursive: false
       flat: true
+      buildName: go_redis_probe_build
+      buildNumber: ${run_number}
 
 pipelines:
   - name: go_redis_probe_build
