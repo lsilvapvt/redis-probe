@@ -39,6 +39,16 @@ resources:
       buildName: go_redis_probe_build
       buildNumber: ${res_go_stage_buildinfo_buildNumber}
 
+
+  - name: redis_probe_image
+    type: Image
+    configuration:
+      registry: acme_co_artifactory                          
+      sourceRepository: docker-stage-local   
+      imageName: soleng.jfrog.io/docker-stage-local/redis-probe        # replace with your fully qualified Docker registry/image name
+      imageTag: ${res_go_stage_buildinfo_buildNumber}
+      autoPull: true
+
 pipelines:
   - name: go_redis_probe_build
     configuration:
@@ -235,6 +245,7 @@ pipelines:
           inputSteps:
             - name: build_image
           outputResources:
+            - name: redis_probe_image
             - name: go_dockerbuildinfo
 
       - name: test_docker_image
