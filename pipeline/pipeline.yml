@@ -40,12 +40,12 @@ resources:
       buildNumber: ${res_go_stage_buildinfo_buildNumber}
 
 
-  - name: redis_probe_image
+  - name: redis_probe_img
     type: Image
     configuration:
       registry: acme_co_swampup113                          
       sourceRepository: docker-stage-local   
-      imageName: swampup113.jfrog.io/docker-stage-local/redis-probe        # replace with your fully qualified Docker registry/image name
+      imageName: swampup113.jfrog.io/docker-stage-local/redis-probe
       imageTag: ${res_go_stage_buildinfo_buildNumber}
       autoPull: true
 
@@ -245,7 +245,7 @@ pipelines:
           inputSteps:
             - name: build_image
           outputResources:
-            - name: redis_probe_image
+            - name: redis_probe_img
             - name: go_dockerbuildinfo
 
       - name: test_docker_image
