@@ -157,11 +157,9 @@ pipelines:
             - name: security_scan 
 
         stepletMultipliers:
-          environmentVariables:                         # Sets of environment variables for steplets
-            - subCommand:      ping                     # - Set 1
-              # REDIS_SERVER_ADDRESS:   "server1.example.com"
-            - subCommand:      set                      # - Set 2
-              # REDIS_SERVER_ADDRESS:   "server1.example.com"
+          environmentVariables:                    # Sets of environment variables for steplets
+            - subCommand: ping                     # - Set 1
+            - subCommand: set                      # - Set 2
       
         execution:
           onStart:
@@ -219,7 +217,7 @@ pipelines:
           affinityGroup: docker_group
           dockerFileLocation: ./docker/
           dockerFileName: Dockerfile
-          dockerImageName: swampup113.jfrog.io/docker-stage-local/redis-probe        # replace with your fully qualified Docker registry/image name
+          dockerImageName: swampup113.jfrog.io/docker-stage-local/redis-probe 
           dockerImageTag: ${res_go_stage_buildinfo_buildNumber}
           inputResources:
             - name: go_stage_buildinfo
@@ -230,9 +228,6 @@ pipelines:
             - name: pre_checks
           integrations:
             - name: acme_co_artifactory
-          # environmentVariables:
-          #   JFROG_CLI_BUILD_NAME: ${res_go_buildinfo_buildName}
-          #   JFROG_CLI_BUILD_NUMBER: ${res_go_buildinfo_buildNumber}
 
       - name: publish_dockerbuild
         type: DockerPush
@@ -255,7 +250,9 @@ pipelines:
         configuration:
           integrations:
             - name: acme_co_artifactory
+            - name: acme_co_swampup113
           inputResources:
+            - name: redis_probe_img
             - name: go_dockerbuildinfo
           inputSteps:
             - name: publish_dockerbuild
@@ -267,19 +264,27 @@ pipelines:
             - echo "Docker Build number= ${res_go_dockerbuildinfo_buildNumber}"
             - echo "Your docker image test scripts are invoked here."
 
-      ## TBD add gate step here
+      - name: promotion_approval
+        type: Bash
+        configuration:
+          requiresApproval: true
+          inputSteps:
+            - name: test_docker_image            
+        execution:
+          onExecute:
+            - echo "executing step..."
 
-      # - name: promote_docker_prod
-      #   type: PromoteBuild
-      #   configuration:
-      #     targetRepository: go-prod-local
-      #     includeDependencies: false
-      #     copy: true
-      #     integrations:
-      #       - name: acme_co_artifactory
-      #     inputResources:
-      #       - name: go_stage_buildinfo
-      #     outputResources:
-      #       - name: go_prod_buildinfo
-      #     inputSteps:
-      #       - name: test_docker_image            
+      - name: promote_docker_prod
+        type: PromoteBuild
+        configuration:
+          targetRepository: docker-prod-local
+          includeDependencies: false
+          copy: true
+          integrations:
+            - name: acme_co_swampup113
+          inputResources:
+            - name: go_dockerbuildinfo
+          # outputResources:
+          #   - name: go_prod_buildinfo
+          inputSteps:
+            - name: promotion_approval            
