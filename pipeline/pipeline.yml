@@ -24,7 +24,7 @@ resources:
     configuration:
       sourceArtifactory: acme_co_artifactory
   # Build info for the production promoted Go app
-  - name: go_prod_buildinfo
+  - name: go_prod_dockerbuildinfo
     type: BuildInfo
     configuration:
       sourceArtifactory: acme_co_artifactory
@@ -284,7 +284,7 @@ pipelines:
             - name: acme_co_swampup113
           inputResources:
             - name: go_dockerbuildinfo
-          # outputResources:
-          #   - name: go_prod_buildinfo
+          outputResources:
+            - name: go_prod_dockerbuildinfo
           inputSteps:
             - name: promotion_approval            
