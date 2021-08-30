@@ -90,8 +90,6 @@ pipelines:
           outputResources:
             - name: go_buildinfo
 
-  - name: go_redis_probe_test_promote
-    steps:
       - name: func_test_Ubuntu
         type: Bash
         configuration:
@@ -100,6 +98,8 @@ pipelines:
             - name: acme_co_artifactory
           inputResources:
             - name: go_buildinfo
+          inputSteps:
+            - name: publish_build
         execution:
           onStart:
             - echo "Your pre-test1 scripts are invoked here"
@@ -122,6 +122,8 @@ pipelines:
             - name: acme_co_artifactory
           inputResources:
             - name: go_buildinfo
+          inputSteps:
+            - name: publish_build
         execution:
           onStart:
             - echo "Your pre-test1 scripts are invoked here"
@@ -267,9 +269,19 @@ pipelines:
       - name: promotion_approval
         type: Bash
         configuration:
-          requiresApproval: true
+          requiresApproval:
+            timeoutSeconds: 43200
+            approvers:
+              - lucianos
+            # notifications:
+            #   - integrationName: SMTP_Integration #requires SMTP integration
+            #     recipients:
+            #       - email@example.com
+            #   - integrationName: Slack_Integration #required Slack integration          
           inputSteps:
             - name: test_docker_image            
+          inputResources:
+            - name: go_dockerbuildinfo
         execution:
           onExecute:
             - echo "executing step..."
