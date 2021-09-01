@@ -113,6 +113,10 @@ pipelines:
             - lsb_release -a
             - ls -latr
             - export REDIS_PROBE_SERVICE_PORT="8888"
+            - export REDIS_SERVER_ADDRESS=${int_acme_co_redis_test_REDIS_SERVER_ADDRESS}
+            - export REDIS_DATABASE=${int_acme_co_redis_test_REDIS_DATABASE}
+            - export REDIS_SERVER_PORT=${int_acme_co_redis_test_REDIS_SERVER_PORT}
+            - export REDIS_PASSWORD=${int_acme_co_redis_test_REDIS_PASSWORD}
             - env
             - ./redis-probe-linux &
             - curl localhost:8888 
@@ -141,6 +145,10 @@ pipelines:
             - cat /etc/centos-release 
             - ls -latr
             - export REDIS_PROBE_SERVICE_PORT="8888"
+            - export REDIS_SERVER_ADDRESS=${int_acme_co_redis_test_REDIS_SERVER_ADDRESS}
+            - export REDIS_DATABASE=${int_acme_co_redis_test_REDIS_DATABASE}
+            - export REDIS_SERVER_PORT=${int_acme_co_redis_test_REDIS_SERVER_PORT}
+            - export REDIS_PASSWORD=${int_acme_co_redis_test_REDIS_PASSWORD}
             - env
             - ./redis-probe-linux &
             - curl localhost:8888 
