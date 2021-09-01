@@ -267,8 +267,11 @@ pipelines:
             - echo "Docker Build number= ${res_go_dockerbuildinfo_buildNumber}"
             - echo "Your docker image test scripts are invoked here."
             - ls -la ~
-            - find ~/.
-            - kubectl get ns 
+            - ls -la
+            - echo int_acme_co_gke_kubeconfig
+            - env
+            - which kubectl
+            - which kubeCtl 
 
       - name: promotion_approval
         type: Bash
