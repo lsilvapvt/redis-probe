@@ -253,10 +253,11 @@ pipelines:
           integrations:
             - name: acme_co_artifactory
             - name: acme_co_swampup113
-            - name: acme_co_gke
+            - name: acme_co_aks
           inputResources:
             - name: redis_probe_img
             - name: go_dockerbuildinfo
+            - name: go_repo
           inputSteps:
             - name: publish_dockerbuild
         execution:
@@ -266,12 +267,10 @@ pipelines:
             - echo "Docker Build name= ${res_go_dockerbuildinfo_buildName}"
             - echo "Docker Build number= ${res_go_dockerbuildinfo_buildNumber}"
             - echo "Your docker image test scripts are invoked here."
-            - ls -la ~
-            - ls -la
-            - echo int_acme_co_gke_kubeconfig
             - env
-            - which kubectl
-            - which kubeCtl 
+            - ls -la
+            - kubectl config view
+            - kubectl get ns
 
       - name: promotion_approval
         type: Bash
