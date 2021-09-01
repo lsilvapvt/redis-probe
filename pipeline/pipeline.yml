@@ -96,6 +96,7 @@ pipelines:
           nodePool: default-dynamic-nodepool
           integrations:
             - name: acme_co_artifactory
+            - name: acme_co_redis_test
           inputResources:
             - name: go_buildinfo
           inputSteps:
@@ -111,8 +112,11 @@ pipelines:
             - echo "Build number= ${res_go_buildinfo_buildNumber}"
             - lsb_release -a
             - ls -latr
+            - export REDIS_PROBE_SERVICE_PORT="8888"
+            - env
             - ./redis-probe-linux &
             - curl localhost:8888 
+            - curl localhost:8888/ping 
 
       - name: func_test_CentOS
         type: Bash
@@ -120,6 +124,7 @@ pipelines:
           nodePool: centos8
           integrations:
             - name: acme_co_artifactory
+            - name: acme_co_redis_test
           inputResources:
             - name: go_buildinfo
           inputSteps:
@@ -135,8 +140,11 @@ pipelines:
             - echo "Build number= ${res_go_buildinfo_buildNumber}"
             - cat /etc/centos-release 
             - ls -latr
+            - export REDIS_PROBE_SERVICE_PORT="8888"
+            - env
             - ./redis-probe-linux &
             - curl localhost:8888 
+            - curl localhost:8888/ping 
 
       - name: security_scan
         type: XrayScan
@@ -254,6 +262,7 @@ pipelines:
             - name: acme_co_artifactory
             - name: acme_co_swampup113
             - name: acme_co_aks
+            - name: acme_co_redis_test
           inputResources:
             - name: redis_probe_img
             - name: go_dockerbuildinfo
@@ -263,6 +272,8 @@ pipelines:
         execution:
           onStart:
             - echo "Your pre-test1 scripts are invoked here"
+            - curl -o ytt https://github.com/vmware-tanzu/carvel-ytt/releases/download/v0.36.0/ytt-linux-amd64
+            - chmod 755 ./ytt
           onExecute:
             - echo "Docker Build name= ${res_go_dockerbuildinfo_buildName}"
             - echo "Docker Build number= ${res_go_dockerbuildinfo_buildNumber}"
@@ -271,6 +282,8 @@ pipelines:
             - ls -la
             - kubectl config view
             - kubectl get ns
+            - echo $res_go_repo_resourcePath
+            - find ${res_go_repo_resourcePath}/.
 
       - name: promotion_approval
         type: Bash

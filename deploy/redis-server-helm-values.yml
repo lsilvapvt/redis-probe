@@ -1,0 +1,50 @@
+artifactoryIntegration: acme_co_artifactory
+kubernetesIntegration: acme_co_aks
+
+GitRepo:
+  name: fooGitRepo
+  gitProvider: github
+  path: jfrog/jfrog-pipelines-simple-example
+  branches:
+    exclude: master
+    include: {{gitBranch}}
+  files:
+    include: myCharts.*
+
+BuildInfo:
+  name: redis-server-helm-deploy
+  buildName: redis-server-helm-deploy
+  buildNumber: ${run_number}
+
+BuildInfoPromoted:
+  name: redis-server-helm-deploy-prod
+
+HelmChart:
+  name: fooHelmChart
+  chartName: foo
+  chartVersion: 1.0.0
+  helmVersion: 3
+  repository: foo
+
+Pipeline:
+  name: acme_co_redis_server_helm
+
+HelmPublish:
+  name: HelmPublish
+  chartPath: '.'
+
+PromoteBuild:
+  name: fooPromoteBuild
+  targetRepository: fooPromote
+  autoPromotion: true
+
+HelmDeploy:
+  name: fooDeploy
+  releaseName: foo
+  chartPath: '.'
+  flags: '--wait --timeout 900s'
+  lint: true
+  lintFlags: '--strict'
+  valueFilePaths:
+    - values.yaml
+  test: true
