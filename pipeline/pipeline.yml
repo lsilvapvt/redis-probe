@@ -22,12 +22,12 @@ resources:
   - name: go_dockerbuildinfo
     type: BuildInfo
     configuration:
-      sourceArtifactory: acme_co_artifactory
+      sourceArtifactory: acme_co_swampup113
   # Build info for the production promoted Go app
   - name: go_prod_dockerbuildinfo
     type: BuildInfo
     configuration:
-      sourceArtifactory: acme_co_artifactory
+      sourceArtifactory: acme_co_swampup113
 
   - name: go_build_binary
     type: FileSpec
@@ -282,6 +282,8 @@ pipelines:
             - name: test_docker_image            
           inputResources:
             - name: go_dockerbuildinfo
+          integrations:
+            - name: acme_co_swampup113
         execution:
           onExecute:
             - echo "executing step..."
@@ -294,9 +296,9 @@ pipelines:
           copy: true
           integrations:
             - name: acme_co_swampup113
+          inputSteps:
+            - name: promotion_approval            
           inputResources:
             - name: go_dockerbuildinfo
           outputResources:
             - name: go_prod_dockerbuildinfo
-          inputSteps:
-            - name: promotion_approval            
