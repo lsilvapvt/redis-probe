@@ -280,8 +280,8 @@ pipelines:
         execution:
           onStart:
             - echo "Your pre-test1 scripts are invoked here"
-            - curl -o ytt https://github.com/vmware-tanzu/carvel-ytt/releases/download/v0.36.0/ytt-linux-amd64
-            - chmod 755 ./ytt
+            # - curl -o ytt https://github.com/vmware-tanzu/carvel-ytt/releases/download/v0.36.0/ytt-linux-amd64
+            # - chmod 755 ./ytt
           onExecute:
             - echo "Docker Build name= ${res_go_dockerbuildinfo_buildName}"
             - echo "Docker Build number= ${res_go_dockerbuildinfo_buildNumber}"
@@ -291,7 +291,17 @@ pipelines:
             - kubectl config view
             - kubectl get ns
             - echo $res_go_repo_resourcePath
-            - find ${res_go_repo_resourcePath}/.
+            - export REDIS_PROBE_SERVICE_PORT="8888"
+            - export REDIS_SERVER_ADDRESS=${int_acme_co_redis_test_REDIS_SERVER_ADDRESS}
+            - export REDIS_DATABASE=${int_acme_co_redis_test_REDIS_DATABASE}
+            - export REDIS_SERVER_PORT=${int_acme_co_redis_test_REDIS_SERVER_PORT}
+            - export REDIS_PASSWORD=${int_acme_co_redis_test_REDIS_PASSWORD}
+            - export REDIS_IMAGE_NAME="swampup113.jfrog.io/docker-stage-local/redis-probe"
+            - export REDIS_IMAGE_TAG=${res_go_stage_buildinfo_buildNumber}
+            - export REDIS_SERVER_NAMESPACE=redis-probe-test-${res_go_stage_buildinfo_buildNumber}
+            - env
+            - replace_envs $res_go_repo_resourcePath/deploy/redis-probe-test.yml
+            - cat $res_go_repo_resourcePath/deploy/redis-probe-test.yml
 
       - name: promotion_approval
         type: Bash

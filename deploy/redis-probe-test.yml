@@ -1,14 +1,15 @@
-#! Example: ytt -f jfrog-automation-workshop-ytt-sessions.yml -f credentials.yml
-
-#@ load("@ytt:data", "data")
----   
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: "${REDIS_SERVER_NAMESPACE}"
+---  
 apiVersion: apps/v1
 kind: Deployment
 metadata:
   labels:
     app: redis-probe
   name: redis-probe
-  namespace: dev
+  namespace: "${REDIS_SERVER_NAMESPACE}"
 spec:
   replicas: 1
   selector:
@@ -20,16 +21,16 @@ spec:
         app: redis-probe
     spec:
       containers:
-      - image: #@ data.values.image_id + ":" + data.values.image_tag
+      - image: ${REDIS_IMAGE_NAME}:${REDIS_IMAGE_TAG}
         name: redis-probe-pod
         imagePullPolicy: Always
         command:
           - /usr/bin/redis-probe
         env:
           - name: REDIS_SERVER_ADDRESS
-            value: #@ "\"" + data.values.redis_address + "\""
+            value: "${REDIS_SERVER_ADDRESS}"
           - name: REDIS_SERVER_PORT
-            value: #@ "\"" + data.values.redis_port + "\""          
+            value: "${REDIS_SERVER_PORT}"
           - name: REDIS_PASSWORD
             valueFrom:
               secretKeyRef:
@@ -47,7 +48,7 @@ metadata:
   labels:
     app: redis-probe
   name: redis-probe
-  namespace: dev
+  namespace: "${REDIS_SERVER_NAMESPACE}"
 spec:
   ports:
   - port: 80
