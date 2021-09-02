@@ -273,7 +273,6 @@ pipelines:
             - name: acme_co_redis_test
           inputResources:
             - name: redis_probe_img
-            - name: build_image
             - name: go_stage_buildinfo
             - name: go_dockerbuildinfo
             - name: go_repo
