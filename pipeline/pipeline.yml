@@ -39,7 +39,6 @@ resources:
       buildName: go_redis_probe_build
       buildNumber: ${res_go_stage_buildinfo_buildNumber}
 
-
   - name: redis_probe_img
     type: Image
     configuration:
@@ -220,7 +219,9 @@ pipelines:
           inputResources:
             - name: go_stage_buildinfo
             - name: go_buildinfo
+              trigger: false
             - name: go_build_binary
+              trigger: false
         execution:
           onExecute:
             - echo "go_buildinfo name= ${res_go_buildinfo_buildName}"
@@ -240,8 +241,11 @@ pipelines:
           inputResources:
             - name: go_stage_buildinfo
             - name: go_buildinfo
+              trigger: false
             - name: go_repo
+              trigger: false
             - name: go_build_binary
+              trigger: false
           inputSteps:
             - name: pre_checks
           integrations:
@@ -272,9 +276,11 @@ pipelines:
             - name: acme_co_aks
             - name: acme_co_redis_test
           inputResources:
-            - name: redis_probe_img
             - name: go_dockerbuildinfo
+            - name: redis_probe_img
+              trigger: false
             - name: go_repo
+              trigger: false
           inputSteps:
             - name: publish_dockerbuild
         execution:
@@ -302,6 +308,12 @@ pipelines:
             - env
             - replace_envs $res_go_repo_resourcePath/deploy/redis-probe-test.yml
             - cat $res_go_repo_resourcePath/deploy/redis-probe-test.yml
+            ## - kubectl create secret generic redis-server --from-literal=password=${REDIS_PASSWORD} -n ${REDIS_SERVER_NAMESPACE}
+            ## - kubectl apply -f $res_go_repo_resourcePath/deploy/redis-probe-test.yml
+            ## wait and check for pod and service to be running
+            ## get service IP
+            ## test service
+            ## delete pod, service and namespace
 
       - name: promotion_approval
         type: Bash
